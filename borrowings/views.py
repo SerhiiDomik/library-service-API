@@ -1,6 +1,6 @@
-from .telegram_helper import send_telegram_message
-from rest_framework import viewsets, permissions, status
+from rest_framework import mixins, viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from .models import Borrowing
 from .serializers import (
@@ -8,11 +8,19 @@ from .serializers import (
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
 )
+from .telegram_helper import send_telegram_message
 
 
-class BorrowingViewSet(viewsets.ModelViewSet):
+class BorrowingViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Borrowing.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 5
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -21,7 +29,6 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         book = serializer.validated_data["book"]
-
         if book.inventory < 1:
             return Response(
                 {"detail": "This book is out of stock."},
@@ -45,9 +52,10 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         if not user.is_staff:
             queryset = queryset.filter(user=user)
 
-        user_id = self.request.query_params.get("user_id")
-        if user_id and user.is_staff:
-            queryset = queryset.filter(user_id=user_id)
+        if user.is_staff:
+            user_id = self.request.query_params.get("user_id")
+            if user_id:
+                queryset = queryset.filter(user_id=user_id)
 
         is_active = self.request.query_params.get("is_active")
         if is_active:
@@ -56,7 +64,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             elif is_active.lower() == "false":
                 queryset = queryset.filter(actual_return_date__isnull=False)
 
-        return queryset
+        return queryset.distinct()
 
     @action(detail=True, methods=["post"], url_path="return")
     def return_borrowing(self, request, pk=None):

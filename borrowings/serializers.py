@@ -29,22 +29,18 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "book", "expected_return_date"]
 
     def validate_book(self, value):
-        # Перевіряємо, чи є книга в наявності
         if value.inventory < 1:
             raise serializers.ValidationError("This book is out of stock.")
         return value
 
     def create(self, validated_data):
         book = validated_data["book"]
-        # Перевіряємо інвентар ще раз перед зменшенням
         if book.inventory < 1:
             raise serializers.ValidationError("This book is out of stock.")
 
-        # Зменшуємо інвентар
         book.inventory -= 1
         book.save()
 
-        # Створюємо позику
         return super().create(validated_data)
 
 
