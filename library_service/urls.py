@@ -7,4 +7,3 @@ urlpatterns = [
     path("api/users/", include("user.urls")),
     path("api/borrowings/", include("borrowings.urls")),
 ]
-
