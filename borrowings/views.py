@@ -2,6 +2,8 @@ from rest_framework import mixins, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from .models import Borrowing
 from .serializers import (
     BorrowingSerializer,
@@ -21,6 +23,25 @@ class BorrowingViewSet(
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination
     pagination_class.page_size = 5
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="user_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description="Filter borrowings by user ID (for staff only).",
+            ),
+            OpenApiParameter(
+                name="is_active",
+                type=OpenApiTypes.BOOL,
+                location=OpenApiParameter.QUERY,
+                description="Filter borrowings by active status (true/false).",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -66,6 +87,11 @@ class BorrowingViewSet(
 
         return queryset.distinct()
 
+    @extend_schema(
+        methods=["POST"],
+        description="Return a borrowed book.",
+        responses={200: {"description": "Book returned successfully."}},
+    )
     @action(detail=True, methods=["post"], url_path="return")
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()

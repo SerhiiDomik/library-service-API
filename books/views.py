@@ -4,6 +4,8 @@ from rest_framework.pagination import PageNumberPagination
 from books.models import Book
 from books.permissions import IsAdminOrIfAuthenticatedReadOnly
 from books.serializers import BookSerializer
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -12,6 +14,25 @@ class BookViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
     pagination_class = PageNumberPagination
     pagination_class.page_size = 15
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="title",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="Filter books by title (case-insensitive contains)",
+            ),
+            OpenApiParameter(
+                name="author",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="Filter books by author (case-insensitive contains)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = self.queryset
