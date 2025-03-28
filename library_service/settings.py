@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     "borrowings",
     "user",
     "drf_spectacular",
-    "library_service",  # ? wait for db
 ]
 
 MIDDLEWARE = [
@@ -151,10 +150,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {
-        "anon": "10/day",
-        "user": "50/day"
-    },
+    "DEFAULT_THROTTLE_RATES": {"anon": "10/day", "user": "50/day"},
 }
 
 SIMPLE_JWT = {
