@@ -27,7 +27,8 @@ def check_overdue_borrowings():
 
             message = (
                 f"Overdue borrowing: borrowing id - {borrowing.id}.\n"
-                f"Borrowed by {borrowing.user.email} on {borrowing.borrow_date}.\n"
+                f"Borrowed by {borrowing.user.email}.\n"
+                f"Borrowed date {borrowing.borrow_date}.\n"
                 f"Expected return date: {borrowing.expected_return_date}.\n"
                 f"Overdue: {days_overdue} days."
             )

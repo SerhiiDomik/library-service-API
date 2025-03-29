@@ -36,7 +36,9 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
     def validate_expected_return_date(self, value):
         if value < date.today():
-            raise serializers.ValidationError("Expected return date cannot be in the past.")
+            raise serializers.ValidationError(
+                "Expected return date cannot be in the past."
+            )
         return value
 
     def create(self, validated_data):

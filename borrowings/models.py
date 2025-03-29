@@ -14,7 +14,7 @@ class Borrowing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="borrowings")
 
     def __str__(self):
-        return f"{self.user.email} borrowed {self.book.title} on {self.borrow_date}"
+        return f"{self.user.email} borrowed " f"{self.book.title} on {self.borrow_date}"
 
     class Meta:
         ordering = ["-borrow_date"]

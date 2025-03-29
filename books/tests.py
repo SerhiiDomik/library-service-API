@@ -33,9 +33,7 @@ class UnauthenticatedBookApiTest(TestCase):
 
     def test_auth_required(self):
         response = self.client.get(BOOK_URL)
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class AuthenticatedBookApiTest(TestCase):
@@ -84,18 +82,9 @@ class AuthenticatedBookApiTest(TestCase):
         self.assertIn(serializer3.data, response.data["results"])
 
     def test_filter_books_by_author(self):
-        book1 = sample_book(
-            title="Django for Beginners",
-            author="J.K. Rowling"
-        )
-        book2 = sample_book(
-            title="Python Tricks",
-            author="Stephen King"
-        )
-        book3 = sample_book(
-            title="Another Django Book",
-            author="George R.R. Martin"
-        )
+        book1 = sample_book(title="Django for Beginners", author="J.K. Rowling")
+        book2 = sample_book(title="Python Tricks", author="Stephen King")
+        book3 = sample_book(title="Another Django Book", author="George R.R. Martin")
 
         response = self.client.get(BOOK_URL, {"author": "king"})
 

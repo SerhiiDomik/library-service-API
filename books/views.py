@@ -21,13 +21,13 @@ class BookViewSet(viewsets.ModelViewSet):
                 name="title",
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
-                description="Filter books by title (case-insensitive contains)",
+                description="Filter books by title",
             ),
             OpenApiParameter(
                 name="author",
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
-                description="Filter books by author (case-insensitive contains)",
+                description="Filter books by author",
             ),
         ]
     )

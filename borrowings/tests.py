@@ -35,8 +35,7 @@ def sample_borrowing(**params):
         "expected_return_date": date.today() + timedelta(days=7),
         "book": sample_book(),
         "user": get_user_model().objects.create_user(
-            email=f"test {uuid.uuid4().hex[:3]} @test.com",
-            password="testpass"
+            email=f"test {uuid.uuid4().hex[:3]} @test.com", password="testpass"
         ),
     }
     defaults.update(params)
@@ -137,10 +136,7 @@ class AuthenticatedBorrowingApiTest(TestCase):
 
     def test_filter_borrowings_by_is_active(self):
         borrowing1 = sample_borrowing(user=self.user)
-        borrowing2 = sample_borrowing(
-            user=self.user,
-            actual_return_date=date.today()
-        )
+        borrowing2 = sample_borrowing(user=self.user, actual_return_date=date.today())
         response = self.client.get(BORROWING_URL, {"is_active": "true"})
         serializer1 = BorrowingSerializer(borrowing1)
         serializer2 = BorrowingSerializer(borrowing2)
