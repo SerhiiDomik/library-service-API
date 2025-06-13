@@ -1,0 +1,82 @@
+services:
+  library_service:
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./:/app
+    command: >
+      sh -c "python manage.py wait_for_db &&
+            python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16.0-alpine3.18
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - my_db:$PGDATA
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py wait_for_db &&
+            celery -A library_service worker --loglevel=info"
+    depends_on:
+      - redis
+      - library_service
+      - db
+    restart: on-failure
+    env_file:
+      - .env
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py wait_for_db &&
+            celery -A library_service beat --loglevel=info"
+    depends_on:
+      - redis
+      - library_service
+      - db
+    env_file:
+      - .env
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    command: >
+      sh -c "python manage.py wait_for_db &&
+            celery -A library_service flower --address=0.0.0.0"
+    depends_on:
+      - celery
+    env_file:
+      - .env
+
+volumes:
+  my_db:
+  redis_data:
